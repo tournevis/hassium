@@ -17,8 +17,11 @@ server.listen(process.env.PORT || 3030, function(){
 
 io.on('connection',function(socket){
   var stream;
+stream = null;
   console.log("connection");
   socket.on('getTweet', function(filter){
+
+
     console.log(filter);
     var trackName =  (filter.length > 3 ) ? filter : null;
     if(trackName != null){
@@ -29,11 +32,11 @@ io.on('connection',function(socket){
         msg.name  = tweet.user.name;
         msg.screenName = tweet.user.screen_name ;
         msg.content = tweet.text ;
-        io.emit('newTweet', msg);
+        socket.emit('newTweet', msg);
       });
       console.log("stream started, filter : " + trackName);
     }else{
-      io.emit('error',' The filter is too short ! ');
+      socket.emit('error',' The filter is too short ! ');
     }
   });
   socket.on('disconnect',function(){
