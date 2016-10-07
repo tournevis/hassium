@@ -3,12 +3,13 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var Twit = require('twit');
+var key = require('./apikey.json');
 
 const T = new Twit({
-  consumer_key:         'dbUgdA0A6I7txwS76IW6MgStd',
-  consumer_secret:      'eEnJs49wqBnclPOH0KDZ4ASrpjHkO60PLTQbhcnVMpg2PoppCA',
-  access_token:         '2999468301-AaD62PlAupros2EP6i0JeS7VZXDvVarkPQypON5',
-  access_token_secret:  'yj2kZT4ntbX8s7uDeQiVKglsvYBOfI4fZIcrPEPzTlq4u'
+  consumer_key:         key.consumer_key,
+  consumer_secret:      key.consumer_secret,
+  access_token:         key.access_token,
+  access_token_secret:  key.access_token_secret
 })
 
 server.listen(process.env.PORT || 3030, function(){
@@ -17,11 +18,10 @@ server.listen(process.env.PORT || 3030, function(){
 
 io.on('connection',function(socket){
   var stream;
-stream = null;
+  stream = null;
   console.log("connection");
   socket.on('getTweet', function(filter){
-
-
+    stream = null;
     console.log(filter);
     var trackName =  (filter.length > 3 ) ? filter : null;
     if(trackName != null){
@@ -35,6 +35,12 @@ stream = null;
         socket.emit('newTweet', msg);
       });
       console.log("stream started, filter : " + trackName);
+      stream.on ('warning', function(warning) {
+        console.log(warning);
+      });
+      stream.on ('error', function(error) {
+        console.log(error);
+      });
     }else{
       socket.emit('error',' The filter is too short ! ');
     }
